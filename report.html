@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Report an Incident - DisasterRelief</title>
+
+    <link rel="stylesheet" href="report.css">
+</head>
+
+<body>
+
+    <div class="page">
+
+        <!-- Header -->
+        <header class="top-header">
+            <div>
+                <h1>Report an Incident</h1>
+                <p>Help your community by reporting a disaster or emergency.</p>
+            </div>
+
+            <button class="back-btn" onclick="goBack()">
+                ← Back to Dashboard
+            </button>
+        </header>
+
+
+        <!-- Main Form -->
+        <main class="report-card">
+
+            <div class="form-heading">
+                <span class="warning-icon">🚨</span>
+
+                <div>
+                    <h2>Incident Details</h2>
+                    <p>
+                        Please provide accurate information about the incident.
+                    </p>
+                </div>
+            </div>
+
+
+            <form id="incidentForm">
+
+                <!-- Photo Upload -->
+                <div class="form-group">
+
+                    <label for="incidentPhoto">
+                        📸 Incident Photo
+                        <span>* Required</span>
+                    </label>
+
+                    <p class="help-text">
+                        Upload a clear photo of the incident.
+                    </p>
+
+                    <div class="upload-box">
+                        <input
+                            type="file"
+                            id="incidentPhoto"
+                            accept="image/*"
+                            required
+                        >
+
+                        <div id="photoPreview" class="preview"></div>
+                    </div>
+
+                </div>
+
+
+                <!-- Video Upload -->
+                <div class="form-group">
+
+                    <label for="incidentVideo">
+                        🎥 Incident Video
+                        <span>* Required</span>
+                    </label>
+
+                    <p class="help-text">
+                        Upload a video showing the incident or affected area.
+                    </p>
+
+                    <div class="upload-box">
+
+                        <input
+                            type="file"
+                            id="incidentVideo"
+                            accept="video/*"
+                            required
+                        >
+
+                        <div id="videoPreview" class="preview"></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Description -->
+                <div class="form-group">
+
+                    <label for="description">
+                        📝 What Happened?
+                        <span>* Required</span>
+                    </label>
+
+                    <p class="help-text">
+                        Describe what happened, where it happened,
+                        and any important information.
+                    </p>
+
+                    <textarea
+                        id="description"
+                        placeholder="Example: Heavy flooding has occurred near..."
+                        required
+                    ></textarea>
+
+                    <div class="character-count">
+                        <span id="charCount">0</span> / 500 characters
+                    </div>
+
+                </div>
+
+
+                <!-- Location -->
+                <div class="location-section">
+
+                    <h3>📍 Incident Location</h3>
+
+                    <p>
+                        Your current location can be used to help locate
+                        the reported incident.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="location-btn"
+                        onclick="getLocation()"
+                    >
+                        📍 Use My Current Location
+                    </button>
+
+                    <p id="locationStatus">
+                        Location not selected.
+                    </p>
+
+                </div>
+
+
+                <!-- Submit -->
+                <div class="submit-section">
+
+                    <p id="errorMessage"></p>
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                    >
+                        🚨 Submit Incident Report
+                    </button>
+
+                </div>
+
+            </form>
+
+        </main>
+
+    </div>
+
+
+    <script src="report.js"></script>
+
+</body>
+</html>

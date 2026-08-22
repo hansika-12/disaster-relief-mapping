@@ -1,0 +1,263 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0b3d3d, #126e6e);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+.login-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.login-card {
+    width: 390px;
+    background: white;
+
+    padding: 40px 35px;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.2);
+
+    text-align: center;
+}
+
+/* LOGO */
+
+.logo {
+    margin-bottom: 25px;
+}
+
+.logo-circle {
+    width: 75px;
+    height: 75px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    background: #0b3d3d;
+
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 38px;
+
+    box-shadow: 0 5px 15px rgba(11, 61, 61, 0.3);
+}
+
+.logo h1 {
+    margin-top: 12px;
+
+    color: #0b3d3d;
+
+    font-size: 30px;
+}
+
+.logo h1 span {
+    color: #159b87;
+}
+
+/* HEADING */
+
+h2 {
+    color: #222;
+
+    font-size: 25px;
+
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #777;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    margin-bottom: 28px;
+}
+
+/* LABEL */
+
+label {
+    display: block;
+
+    text-align: left;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #333;
+
+    margin-bottom: 8px;
+}
+
+/* MOBILE INPUT */
+
+.mobile-input {
+    display: flex;
+
+    border: 1px solid #ddd;
+
+    border-radius: 9px;
+
+    overflow: hidden;
+
+    margin-bottom: 18px;
+}
+
+.mobile-input span {
+    background: #f2f5f5;
+
+    padding: 14px;
+
+    color: #555;
+
+    font-weight: bold;
+}
+
+.mobile-input input {
+    flex: 1;
+
+    border: none;
+
+    outline: none;
+
+    padding: 14px;
+
+    font-size: 15px;
+}
+
+/* OTP INPUT */
+
+#otp-section {
+    display: none;
+
+    margin-top: 20px;
+}
+
+#otp {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    font-size: 20px;
+
+    text-align: center;
+
+    letter-spacing: 7px;
+
+    margin-bottom: 15px;
+}
+
+/* BUTTON */
+
+button {
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #0b3d3d;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #126e6e;
+
+    transform: translateY(-1px);
+}
+
+/* OTP MESSAGE */
+
+.otp-message {
+    color: #159b87;
+
+    font-size: 13px;
+
+    margin-bottom: 15px;
+}
+
+/* RESEND */
+
+.resend {
+    background: transparent;
+
+    color: #0b7777;
+
+    margin-top: 10px;
+
+    font-size: 14px;
+}
+
+.resend:hover {
+    background: #eef8f6;
+
+    transform: none;
+}
+
+/* FOOTER */
+
+.footer-text {
+    margin-top: 25px;
+
+    color: #999;
+
+    font-size: 11px;
+}
+
+/* MOBILE */
+
+@media (max-width: 450px) {
+
+    .login-card {
+        padding: 30px 22px;
+    }
+
+    .logo-circle {
+        width: 65px;
+        height: 65px;
+        font-size: 32px;
+    }
+
+    .logo h1 {
+        font-size: 27px;
+    }
+}
