@@ -243,7 +243,7 @@ function updateStatistics() {
 
     document.getElementById(
         "activeIncidents"
-    ).textContent = active + 8;
+    ).textContent = 0;
 
 
     document.getElementById(
