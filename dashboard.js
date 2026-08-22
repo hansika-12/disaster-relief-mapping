@@ -248,12 +248,12 @@ function updateStatistics() {
 
     document.getElementById(
         "myReportCount"
-    ).textContent = reports.length;
+    ).textContent = 0;
 
 
     document.getElementById(
         "verifiedReports"
-    ).textContent = verified + 25;
+    ).textContent = 0;
 
 }
 
