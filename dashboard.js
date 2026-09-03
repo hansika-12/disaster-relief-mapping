@@ -1011,6 +1011,67 @@ function locateUser() {
 
 
 /* =========================================
+   SEARCH MAP LOCATION
+========================================= */
+
+let searchMarker = null;
+
+async function searchMapLocation() {
+
+    const input =
+        document.getElementById("mapSearchInput");
+
+    const query = input.value.trim();
+
+
+    if (query === "") {
+        alert("Please enter a location to search.");
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+        );
+
+        const data = await response.json();
+
+
+        if (data.length === 0) {
+            alert("Location not found. Please try again.");
+            return;
+        }
+
+
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+
+
+        disasterMap.setView([lat, lng], 15);
+
+
+        if (searchMarker) {
+            disasterMap.removeLayer(searchMarker);
+        }
+
+
+        searchMarker = L.marker([lat, lng])
+            .addTo(disasterMap)
+            .bindPopup(`<strong>${data[0].display_name}</strong>`)
+            .openPopup();
+
+    } catch (error) {
+
+        console.error(error);
+        alert("Error while searching for location.");
+
+    }
+}
+
+
+/* =========================================
    LOGOUT
 ========================================= */
 

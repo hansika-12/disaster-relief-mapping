@@ -29,11 +29,6 @@ button {
     display: none !important;
 }
 
-
-/* =========================================
-   SIDEBAR
-========================================= */
-
 .sidebar {
     position: fixed;
     left: 0;
@@ -51,8 +46,6 @@ button {
     z-index: 1000;
 }
 
-
-/* LOGO */
 
 .logo-area {
     display: flex;
@@ -91,7 +84,7 @@ button {
 }
 
 
-/* MENU */
+
 
 .sidebar-menu {
     padding: 20px 12px;
@@ -221,9 +214,7 @@ button {
 }
 
 
-/* =========================================
-   MAIN
-========================================= */
+
 
 .main-content {
     margin-left: 260px;
@@ -233,10 +224,6 @@ button {
     padding: 28px 35px;
 }
 
-
-/* =========================================
-   TOP BAR
-========================================= */
 
 .topbar {
     display: flex;
@@ -547,6 +534,25 @@ button {
     border-radius: 6px;
 
     font-size: 11px;
+}
+
+.map-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-search input {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 11px;
+    outline: none;
+    width: 160px;
+}
+
+.map-search input:focus {
+    border-color: #dc2626;
 }
 
 .text-btn {

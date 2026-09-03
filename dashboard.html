@@ -224,12 +224,28 @@
                             <p>Reported incidents in your area</p>
                         </div>
 
-                        <button
-                            class="small-btn"
-                            onclick="locateUser()"
-                        >
-                            📍 My Location
-                        </button>
+                        <div class="map-search">
+                            <input
+                                type="text"
+                                id="mapSearchInput"
+                                placeholder="Search location..."
+                            >
+
+                            <button
+                                class="small-btn"
+                                onclick="searchMapLocation()"
+                                title="Search location"
+                            >
+                                🔍
+                            </button>
+
+                            <button
+                                class="small-btn"
+                                onclick="locateUser()"
+                            >
+                                📍 My Location
+                            </button>
+                        </div>
 
                     </div>
 
@@ -304,7 +320,7 @@
                 <div class="responder-grid">
 
                     <div class="response-item">
-                        <strong>17</strong>
+                        <strong>0</strong>
                         <span>Responders Online</span>
                     </div>
 
