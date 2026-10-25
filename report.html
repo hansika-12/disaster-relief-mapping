@@ -3,171 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Report an Incident - DisasterRelief</title>
-
-    <link rel="stylesheet" href="report.css">
+    <title>Disaster Relief Mapping | Report Incident</title>
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
 
-    <div class="page">
+    <aside class="sidebar">
 
-        <!-- Header -->
-        <header class="top-header">
+        <div class="logo-area">
+            <div class="logo-circle">DR</div>
             <div>
-                <h1>Report an Incident</h1>
-                <p>Help your community by reporting a disaster or emergency.</p>
+                <h2>DisasterRelief</h2>
+                <span>Decentralized Mapping</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <button class="menu-item" onclick="window.location.href='dashboard.html'">
+                <span>📊</span>
+                Dashboard
+            </button>
+
+            <button class="menu-item active" onclick="window.location.href='report.html'">
+                <span>🚨</span>
+                Report Incident
+            </button>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="user-mini">
+                <div class="avatar">C</div>
+                <div>
+                    <strong>Citizen</strong>
+                    <small>Citizen Account</small>
+                </div>
             </div>
 
-            <button class="back-btn" onclick="goBack()">
-                ← Back to Dashboard
-            </button>
+        </div>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Report New Incident</h1>
+                <p>Submit accurate information about a disaster in your area.</p>
+            </div>
         </header>
 
 
-        <!-- Main Form -->
-        <main class="report-card">
+        <section class="dashboard-section">
 
-            <div class="form-heading">
-                <span class="warning-icon">🚨</span>
+            <div class="form-panel">
 
-                <div>
-                    <h2>Incident Details</h2>
-                    <p>
-                        Please provide accurate information about the incident.
-                    </p>
-                </div>
+                <form id="incidentForm">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label>Incident Type</label>
+                            <select id="incidentType" required>
+                                <option value="">Select incident type</option>
+                                <option value="Flood">Flood</option>
+                                <option value="Earthquake">Earthquake</option>
+                                <option value="Fire">Fire</option>
+                                <option value="Landslide">Landslide</option>
+                                <option value="Cyclone">Cyclone</option>
+                                <option value="Building Collapse">Building Collapse</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Severity</label>
+                            <select id="severity" required>
+                                <option value="">Select severity</option>
+                                <option value="Critical">Critical</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Incident Title</label>
+                        <input type="text" id="incidentTitle" placeholder="Example: Flood near main road" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="incidentDescription" rows="5" placeholder="Describe what happened..." required></textarea>
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="incidentLocation" placeholder="Enter location" required>
+                            <button type="button" id="useLocationBtn" style="margin-top:8px; padding:6px 12px; border-radius:6px; border:1px solid #ccc; cursor:pointer; background:#f5f5f5;">
+                                📍 Use My Current Location
+                            </button>
+                            <small id="locationStatus" style="display:block; margin-top:4px; color:gray;"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>People Affected</label>
+                            <input type="number" id="peopleAffected" min="0" placeholder="Number of people" required>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Photo</label>
+                        <input type="file" id="incidentPhoto" accept="image/*">
+                        <div id="photoPreview"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="secondary-btn" onclick="window.location.href='dashboard.html'">
+                            Cancel
+                        </button>
+                        <button type="submit" class="primary-btn">
+                            Submit New Report
+                        </button>
+                    </div>
+
+                </form>
+
             </div>
 
+        </section>
 
-            <form id="incidentForm">
-
-                <!-- Photo Upload -->
-                <div class="form-group">
-
-                    <label for="incidentPhoto">
-                        📸 Incident Photo
-                        <span>* Required</span>
-                    </label>
-
-                    <p class="help-text">
-                        Upload a clear photo of the incident.
-                    </p>
-
-                    <div class="upload-box">
-                        <input
-                            type="file"
-                            id="incidentPhoto"
-                            accept="image/*"
-                            required
-                        >
-
-                        <div id="photoPreview" class="preview"></div>
-                    </div>
-
-                </div>
-
-
-                <!-- Video Upload -->
-                <div class="form-group">
-
-                    <label for="incidentVideo">
-                        🎥 Incident Video
-                        <span>* Required</span>
-                    </label>
-
-                    <p class="help-text">
-                        Upload a video showing the incident or affected area.
-                    </p>
-
-                    <div class="upload-box">
-
-                        <input
-                            type="file"
-                            id="incidentVideo"
-                            accept="video/*"
-                            required
-                        >
-
-                        <div id="videoPreview" class="preview"></div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Description -->
-                <div class="form-group">
-
-                    <label for="description">
-                        📝 What Happened?
-                        <span>* Required</span>
-                    </label>
-
-                    <p class="help-text">
-                        Describe what happened, where it happened,
-                        and any important information.
-                    </p>
-
-                    <textarea
-                        id="description"
-                        placeholder="Example: Heavy flooding has occurred near..."
-                        required
-                    ></textarea>
-
-                    <div class="character-count">
-                        <span id="charCount">0</span> / 500 characters
-                    </div>
-
-                </div>
-
-
-                <!-- Location -->
-                <div class="location-section">
-
-                    <h3>📍 Incident Location</h3>
-
-                    <p>
-                        Your current location can be used to help locate
-                        the reported incident.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="location-btn"
-                        onclick="getLocation()"
-                    >
-                        📍 Use My Current Location
-                    </button>
-
-                    <p id="locationStatus">
-                        Location not selected.
-                    </p>
-
-                </div>
-
-
-                <!-- Submit -->
-                <div class="submit-section">
-
-                    <p id="errorMessage"></p>
-
-                    <button
-                        type="submit"
-                        class="submit-btn"
-                    >
-                        🚨 Submit Incident Report
-                    </button>
-
-                </div>
-
-            </form>
-
-        </main>
-
-    </div>
-
+    </main>
 
     <script src="report.js"></script>
 

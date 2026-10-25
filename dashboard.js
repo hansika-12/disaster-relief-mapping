@@ -2,66 +2,64 @@
    DISASTER RELIEF DASHBOARD
 ========================================= */
 
+let reports = [];
 
-/* =========================================
-   SAMPLE DATA
-========================================= */
+function loadPendingNotifications() {
 
-const reports = [
+    const pending = JSON.parse(
+        localStorage.getItem("pendingNotifications") || "[]"
+    );
 
-    {
-        id: "DR-104",
-        type: "Flood",
-        title: "Waterlogging near Main Road",
-        location: "Central Road",
-        date: "21 Aug 2026",
-        severity: "Critical",
-        status: "Verified",
-        people: 120,
-        description:
-            "Heavy rainfall has caused severe waterlogging."
-    },
+    const saved = JSON.parse(
+        localStorage.getItem("savedNotifications") || "[]"
+    );
 
-    {
-        id: "DR-103",
-        type: "Fire",
-        title: "Building Fire Reported",
-        location: "Market Area",
-        date: "21 Aug 2026",
-        severity: "Critical",
-        status: "Pending",
-        people: 35,
-        description:
-            "Fire reported inside a commercial building."
-    },
+    // sabse nayi notification sabse upar
+    const extra = [...pending.reverse(), ...saved];
 
-    {
-        id: "DR-102",
-        type: "Landslide",
-        title: "Road Blocked Due To Landslide",
-        location: "Hill Road",
-        date: "20 Aug 2026",
-        severity: "Moderate",
-        status: "Verified",
-        people: 60,
-        description:
-            "Landslide has blocked traffic on the main road."
-    },
+    localStorage.setItem(
+        "savedNotifications",
+        JSON.stringify(extra)
+    );
 
-    {
-        id: "DR-101",
-        type: "Earthquake",
-        title: "Minor Earthquake Felt",
-        location: "North Zone",
-        date: "20 Aug 2026",
-        severity: "Low",
-        status: "Verified",
-        people: 15,
-        description:
-            "Residents reported minor earthquake vibrations."
+    localStorage.removeItem("pendingNotifications");
+
+    notifications.unshift(...extra);
+
+    loadNotifications();
+
+    updateNotificationCount();
+}
+
+
+function updateNotificationCount() {
+
+    const unread = notifications.filter(n => n.unread).length;
+
+    document.querySelectorAll(
+        ".notification-count, .top-notification"
+    ).forEach(element => {
+
+        element.textContent = unread;
+
+        element.style.display = unread === 0 ? "none" : "";
+
+    });
+}
+
+async function fetchReports() {
+    try {
+        const response = await fetch('http://localhost:5000/api/reports');
+        reports = await response.json();
+
+        loadRecentReports();
+        loadMyReports();
+        loadResponderReports();
+        updateStatistics();
+    } catch (error) {
+        console.error('Failed to fetch reports:', error);
     }
-
-];
+}
 
 
 const notifications = [
@@ -79,7 +77,7 @@ const notifications = [
         icon: "✅",
         title: "Report Verified",
         message:
-            "Your report DR-098 has been verified by a responder.",
+            "Your report DR-098 has been verified by a community member.",
         time: "35 minutes ago",
         unread: true
     },
@@ -126,8 +124,6 @@ function showSection(sectionId) {
     }
 
 
-    /* Update sidebar */
-
     const menuItems =
         document.querySelectorAll(".menu-item");
 
@@ -147,18 +143,11 @@ function showSection(sectionId) {
     }
 
 
-    /* Update title */
-
     const titles = {
 
         dashboard: [
             "Citizen Dashboard",
             "Monitor disasters and help your community."
-        ],
-
-        report: [
-            "Report New Incident",
-            "Submit accurate information about a disaster."
         ],
 
         myReports: [
@@ -167,8 +156,8 @@ function showSection(sectionId) {
         ],
 
         responders: [
-            "Responder Dashboard",
-            "Verify incidents and manage emergency response."
+            "Community verification",
+            "Verify reports submitted by other community members."
         ],
 
         notifications: [
@@ -209,17 +198,17 @@ function showSection(sectionId) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    loadRecentReports();
+    const section = location.hash.replace("#", "");
 
-    loadMyReports();
+    if (section) {
+        showSection(section);
+    }
 
-    loadResponderReports();
+    fetchReports();
 
-    loadNotifications();
+    loadPendingNotifications();
 
     initializeMap();
-
-    updateStatistics();
 
 });
 
@@ -243,17 +232,17 @@ function updateStatistics() {
 
     document.getElementById(
         "activeIncidents"
-    ).textContent = 0;
+    ).textContent = active;
 
 
     document.getElementById(
         "myReportCount"
-    ).textContent = 0;
+    ).textContent = reports.length;
 
 
     document.getElementById(
         "verifiedReports"
-    ).textContent = 0;
+    ).textContent = verified;
 
 }
 
@@ -294,10 +283,10 @@ function loadRecentReports() {
 
             <div class="report-info">
 
-                <h4>${report.title}</h4>
+                <h4>${report.title || report.type}</h4>
 
                 <p>
-                    📍 ${report.location}
+                    📍 ${report.location_name || "Unknown"}
                 </p>
 
                 <span class="status ${getStatusClass(report.status)}">
@@ -364,11 +353,11 @@ function loadMyReports() {
             </td>
 
             <td>
-                ${report.location}
+                ${report.location_name || "Unknown"}
             </td>
 
             <td>
-                ${report.date}
+                ${new Date(report.created_at).toLocaleDateString()}
             </td>
 
             <td>
@@ -381,7 +370,7 @@ function loadMyReports() {
 
                 <button
                     class="view-btn"
-                    onclick="showReportDetails('${report.id}')"
+                    onclick="showReportDetails(${report.id})"
                 >
                     View Details
                 </button>
@@ -412,161 +401,11 @@ function showReportDetails(reportId) {
     if (!report) return;
 
 
-    const details =
-        document.getElementById("modalDetails");
-
-
-    details.innerHTML = `
-
-        <div class="detail-row">
-            <span>Report ID</span>
-            <strong>${report.id}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>Incident Type</span>
-            <strong>${report.type}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>Title</span>
-            <strong>${report.title}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>Location</span>
-            <strong>${report.location}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>Severity</span>
-            <strong>${report.severity}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>People Affected</span>
-            <strong>${report.people}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>Status</span>
-            <strong>${report.status}</strong>
-        </div>
-
-        <div class="detail-row">
-            <span>Description</span>
-            <strong>${report.description}</strong>
-        </div>
-
-    `;
-
-
-    document
-        .getElementById("reportModal")
-        .classList.add("show");
+    alert(
+        `Report: ${report.type}\nLocation: ${report.location_name || "Unknown"}\nStatus: ${report.status}\nDescription: ${report.description || "N/A"}`
+    );
 
 }
-
-
-function closeModal() {
-
-    document
-        .getElementById("reportModal")
-        .classList.remove("show");
-
-}
-
-
-/* =========================================
-   INCIDENT FORM
-========================================= */
-
-document
-    .getElementById("incidentForm")
-    .addEventListener("submit", function(event) {
-
-        event.preventDefault();
-
-
-        const type =
-            document.getElementById(
-                "incidentType"
-            ).value;
-
-        const severity =
-            document.getElementById(
-                "severity"
-            ).value;
-
-        const title =
-            document.getElementById(
-                "incidentTitle"
-            ).value;
-
-        const description =
-            document.getElementById(
-                "incidentDescription"
-            ).value;
-
-        const location =
-            document.getElementById(
-                "incidentLocation"
-            ).value;
-
-        const people =
-            document.getElementById(
-                "peopleAffected"
-            ).value;
-
-
-        const newReport = {
-
-            id:
-                "DR-" +
-                (105 + reports.length),
-
-            type: type,
-
-            title: title,
-
-            location: location,
-
-            date: "21 Aug 2026",
-
-            severity: severity,
-
-            status: "Pending",
-
-            people: people,
-
-            description: description
-
-        };
-
-
-        reports.unshift(newReport);
-
-
-        loadRecentReports();
-
-        loadMyReports();
-
-        loadResponderReports();
-
-        updateStatistics();
-
-
-        alert(
-            "Your incident report has been submitted successfully!"
-        );
-
-
-        this.reset();
-
-
-        showSection("myReports");
-
-    });
 
 
 /* =========================================
@@ -606,15 +445,15 @@ function loadResponderReports() {
 
                     <h4>
                         ${report.type} -
-                        ${report.title}
+                        ${report.title || ""}
                     </h4>
 
                     <p>
-                        📍 ${report.location}
+                        📍 ${report.location_name || "Unknown"}
                     </p>
 
                     <p>
-                        👥 ${report.people}
+                        👥 ${report.people_affected || 0}
                         people affected
                     </p>
 
@@ -628,7 +467,7 @@ function loadResponderReports() {
 
 
             <p>
-                ${report.description}
+                ${report.description || ""}
             </p>
 
 
@@ -636,23 +475,16 @@ function loadResponderReports() {
 
                 <button
                     class="verify-btn"
-                    onclick="verifyReport('${report.id}')"
+                    onclick="verifyReport(${report.id})"
                 >
                     ✓ Verify
                 </button>
 
                 <button
                     class="reject-btn"
-                    onclick="rejectReport('${report.id}')"
+                    onclick="rejectReport(${report.id})"
                 >
                     ✕ Reject
-                </button>
-
-                <button
-                    class="view-btn"
-                    onclick="showReportDetails('${report.id}')"
-                >
-                    View Details
                 </button>
 
             </div>
@@ -687,75 +519,107 @@ function loadResponderReports() {
    VERIFY REPORT
 ========================================= */
 
-function verifyReport(reportId) {
+function addNotification(icon, title, message) {
 
-    const report =
-        reports.find(item =>
-            item.id === reportId
+    const notification = {
+        icon: icon,
+        title: title,
+        message: message,
+        time: "Just now",
+        unread: true
+    };
+
+    notifications.unshift(notification);
+
+    const saved = JSON.parse(
+        localStorage.getItem("savedNotifications") || "[]"
+    );
+
+    saved.unshift(notification);
+
+    localStorage.setItem(
+        "savedNotifications",
+        JSON.stringify(saved)
+    );
+
+    loadNotifications();
+
+    updateNotificationCount();
+}
+
+
+async function verifyReport(reportId) {
+
+    try {
+
+        const response = await fetch(`http://localhost:5000/api/reports/${reportId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "Verified", verified_by: localStorage.getItem("loginEmail") || "Unknown" })
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to verify report");
+        }
+
+        const report = reports.find(r => r.id === reportId);
+        const name = report ? (report.title || report.type) : `#${reportId}`;
+
+        await fetchReports();
+
+        addNotification(
+            "✅",
+            "Report Verified",
+            `Your report "${name}" has been verified by a community member.`
         );
 
+        alert(`Report ${reportId} has been verified successfully.`);
 
-    if (!report) return;
-
-
-    report.status = "Verified";
-
-
-    loadRecentReports();
-
-    loadMyReports();
-
-    loadResponderReports();
-
-    updateStatistics();
-
-
-    alert(
-        `${report.id} has been verified successfully.`
-    );
+    } catch (error) {
+        console.error("Error verifying report:", error);
+        alert("Something went wrong. Please try again.");
+    }
 
 }
 
 
-/* =========================================
-   REJECT REPORT
-========================================= */
+async function rejectReport(reportId) {
 
-function rejectReport(reportId) {
-
-    const report =
-        reports.find(item =>
-            item.id === reportId
-        );
-
-
-    if (!report) return;
-
-
-    const confirmReject =
-        confirm(
-            "Are you sure you want to reject this report?"
-        );
-
+    const confirmReject = confirm(
+        "Are you sure you want to reject this report?"
+    );
 
     if (!confirmReject) return;
 
+    try {
 
-    report.status = "Rejected";
+        const response = await fetch(`http://localhost:5000/api/reports/${reportId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "Rejected", verified_by: localStorage.getItem("loginEmail") || "Unknown" })
+        });
 
+        if (!response.ok) {
+            throw new Error("Failed to reject report");
+        }
 
-    loadRecentReports();
+        const report = reports.find(r => r.id === reportId);
+        const name = report ? (report.title || report.type) : `#${reportId}`;
 
-    loadMyReports();
+        await fetchReports();
 
-    loadResponderReports();
+        addNotification(
+            "❌",
+            "Report Rejected",
+            `Your report "${name}" was rejected by a community member.`
+        );
 
-    updateStatistics();
+        alert(`Report ${reportId} has been rejected.`);
 
-
-    alert(
-        `${report.id} has been rejected.`
-    );
+    } catch (error) {
+        console.error("Error rejecting report:", error);
+        alert("Something went wrong. Please try again.");
+    }
 
 }
 
@@ -866,92 +730,6 @@ function initializeMap() {
         }
     ).addTo(disasterMap);
 
-
-    const locations = [
-
-        {
-            lat: 21.1458,
-            lng: 79.0882,
-            title: "Flood - Central Road",
-            status: "Critical"
-        },
-
-        {
-            lat: 21.155,
-            lng: 79.095,
-            title: "Building Fire - Market Area",
-            status: "Critical"
-        },
-
-        {
-            lat: 21.132,
-            lng: 79.078,
-            title: "Landslide - Hill Road",
-            status: "Moderate"
-        },
-
-        {
-            lat: 21.16,
-            lng: 79.07,
-            title: "Earthquake Report",
-            status: "Resolved"
-        }
-
-    ];
-
-
-    locations.forEach(location => {
-
-        let markerColor = "#dc2626";
-
-        if (location.status === "Moderate") {
-            markerColor = "#f59e0b";
-        }
-
-        if (location.status === "Resolved") {
-            markerColor = "#16a34a";
-        }
-
-
-        const icon =
-            L.divIcon({
-
-                className: "custom-map-marker",
-
-                html: `
-                    <div style="
-                        width:18px;
-                        height:18px;
-                        background:${markerColor};
-                        border:3px solid white;
-                        border-radius:50%;
-                        box-shadow:
-                        0 2px 6px rgba(0,0,0,0.3);
-                    "></div>
-                `,
-
-                iconSize: [18, 18],
-
-                iconAnchor: [9, 9]
-
-            });
-
-
-        L.marker(
-            [location.lat, location.lng],
-            { icon: icon }
-        )
-        .addTo(disasterMap)
-        .bindPopup(`
-            <strong>
-                ${location.title}
-            </strong>
-            <br>
-            Status: ${location.status}
-        `);
-
-    });
-
 }
 
 
@@ -1056,57 +834,852 @@ async function searchMapLocation() {
             disasterMap.removeLayer(searchMarker);
         }
 
-
-        searchMarker = L.marker([lat, lng])
-            .addTo(disasterMap)
-            .bindPopup(`<strong>${data[0].display_name}</strong>`)
-            .openPopup();
+        searchMarker =
+            L.marker([lat, lng])
+                .addTo(disasterMap)
+                .bindPopup(query)
+                .openPopup();
 
     } catch (error) {
 
-        console.error(error);
-        alert("Error while searching for location.");
+        console.error("Search failed:", error);
+        alert("Something went wrong while searching.");
 
     }
+
 }
 
-
-/* =========================================
-   LOGOUT
-========================================= */
 
 function logout() {
 
-    const confirmLogout =
-        confirm(
-            "Do you want to logout?"
-        );
+    window.location.href = "index.html";
+
+}
+/* =========================================
+   NOTIFICATION COUNT FIX
+========================================= */
+
+// purani 4 fake notifications ko "seen" maan lo
+notifications.forEach(n => n.unread = false);
 
 
-    if (!confirmLogout) return;
+// notifications dekh li gayi: unread hata do, count 0 karo
+function markNotificationsSeen() {
 
-    window.location.href = "login.html";
+    notifications.forEach(n => n.unread = false);
 
+    const saved = JSON.parse(
+        localStorage.getItem("savedNotifications") || "[]"
+    );
+
+    saved.forEach(n => n.unread = false);
+
+    localStorage.setItem(
+        "savedNotifications",
+        JSON.stringify(saved)
+    );
+
+    updateNotificationCount();
 }
 
 
+// "Mark all as read" button
+function markAllRead() {
+    markNotificationsSeen();
+    loadNotifications();
+}
+
+
+// page khulte waqt notifications load karo
+function loadPendingNotifications() {
+
+    const pending = JSON.parse(
+        localStorage.getItem("pendingNotifications") || "[]"
+    );
+
+    const saved = JSON.parse(
+        localStorage.getItem("savedNotifications") || "[]"
+    );
+
+    const all = [...pending.reverse(), ...saved];
+
+    localStorage.setItem("savedNotifications", JSON.stringify(all));
+    localStorage.removeItem("pendingNotifications");
+
+    notifications.unshift(...all);
+
+    loadNotifications();
+    updateNotificationCount();
+
+    const section = document.getElementById("notifications");
+
+    if (section && !section.classList.contains("hidden")) {
+        markNotificationsSeen();
+    }
+}
+
+
+// Notifications section kholte hi count 0 ho jaye
+const _showSection = showSection;
+
+showSection = function (sectionId) {
+
+    _showSection(sectionId);
+
+    if (sectionId === "notifications") {
+        markNotificationsSeen();
+    }
+};
 /* =========================================
-   CLOSE MODAL WHEN CLICKING OUTSIDE
+   MAP DISPLAY FIX
 ========================================= */
 
-window.addEventListener(
-    "click",
-    function(event) {
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        if (disasterMap) disasterMap.invalidateSize();
+    }, 300);
+});
 
-        const modal =
-            document.getElementById(
-                "reportModal"
-            );
+const _showSectionMap = showSection;
+
+showSection = function (sectionId) {
+
+    _showSectionMap(sectionId);
+
+    if (sectionId === "dashboard" && disasterMap) {
+        setTimeout(() => disasterMap.invalidateSize(), 200);
+    }
+};
+/* =========================================
+   MAP MARKERS
+========================================= */
+
+let reportLayer = null;
 
 
-        if (event.target === modal) {
-            closeModal();
+function escapeHtml(text) {
+    return String(text ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    }[c]));
+}
+
+
+function getMarkerColor(report) {
+
+    if (report.status === "Resolved") {
+        return "#16a34a";          // hara
+    }
+
+    const severity = (report.severity || "").toLowerCase();
+
+    if (severity === "critical" || severity === "high") {
+        return "#dc2626";          // laal
+    }
+
+    return "#f59e0b";              // narangi
+}
+
+
+function drawReportMarkers() {
+
+    if (typeof disasterMap === "undefined" || !disasterMap) return;
+
+    if (reportLayer) {
+        reportLayer.clearLayers();
+    } else {
+        reportLayer = L.layerGroup().addTo(disasterMap);
+    }
+
+    reports.forEach(report => {
+
+        if (report.status === "Rejected") return;
+
+        const lat = parseFloat(report.latitude);
+        const lng = parseFloat(report.longitude);
+
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        L.circleMarker([lat, lng], {
+            radius: 9,
+            color: "#ffffff",
+            weight: 2,
+            fillColor: getMarkerColor(report),
+            fillOpacity: 0.95
+        })
+        .bindPopup(`
+            <strong>${escapeHtml(report.title || report.type)}</strong><br>
+            ${escapeHtml(report.type)} • ${escapeHtml(report.severity || "N/A")}<br>
+            📍 ${escapeHtml(report.location_name || "Unknown")}<br>
+            👥 ${escapeHtml(report.people_affected || 0)} people affected<br>
+            Status: <strong>${escapeHtml(report.status)}</strong>
+        `)
+        .addTo(reportLayer);
+
+    });
+}
+
+
+// reports aate hi markers bhi ban jayein
+const _updateStatisticsMarkers = updateStatistics;
+
+updateStatistics = function () {
+    _updateStatisticsMarkers();
+    drawReportMarkers();
+};
+function getMarkerColor(report) {
+
+    if (report.status === "Resolved") {
+        return "#16a34a";          // hara
+    }
+
+    const severity = (report.severity || "").toLowerCase();
+
+    if (severity === "critical") {
+        return "#dc2626";          // laal
+    }
+
+    if (severity === "low") {
+        return "#2563eb";          // neela
+    }
+
+    return "#f59e0b";              // narangi (Moderate)
+}
+function getMarkerColor(report) {
+
+    const severity = (report.severity || "").toLowerCase();
+
+    if (severity === "critical") {
+        return "#dc2626";          // laal
+    }
+
+    if (severity === "low") {
+        return "#2563eb";          // neela
+    }
+
+    return "#f59e0b";              // narangi (Moderate)
+}
+/* =========================================
+   LEDGER INTEGRITY CHECK
+========================================= */
+
+async function checkIntegrity() {
+
+    const box = document.getElementById("ledgerResult");
+
+    box.style.color = "#64748b";
+    box.textContent = "Checking...";
+
+    try {
+
+        const res = await fetch(
+            "http://localhost:5000/api/reports/ledger/verify"
+        );
+
+        const data = await res.json();
+
+        if (data.valid) {
+
+            box.style.color = "#166534";
+            box.textContent =
+                "✅ All good. " + data.total_blocks +
+                " ledger blocks checked, no tampering found.";
+
+        } else {
+
+            const ids = [...new Set(
+                data.problems
+                    .map(p => p.report_id)
+                    .filter(id => id !== undefined)
+            )];
+
+            box.style.color = "#991b1b";
+            box.textContent =
+                "⚠️ Tampering detected! Problem in report(s): " +
+                (ids.join(", ") || "ledger");
         }
 
+    } catch (error) {
+
+        box.style.color = "#991b1b";
+        box.textContent = "Could not reach the server.";
     }
-);
+}
+/* =========================================
+   LEDGER BADGES
+========================================= */
+
+function ledgerBadgeHtml(report) {
+
+    if (report.ledger_status === "tampered") {
+        return '<span class="ledger-badge tampered">⚠️ Tampered</span>';
+    }
+
+    if (report.ledger_status === "sealed") {
+        return '<span class="ledger-badge sealed">🔗 Sealed</span>';
+    }
+
+    return "";
+}
+
+
+// Recent Reports me badge
+const _loadRecentReportsBadge = loadRecentReports;
+
+loadRecentReports = function () {
+
+    _loadRecentReportsBadge();
+
+    const items = document.querySelectorAll("#recentReports .report-item");
+
+    reports.slice(0, 4).forEach((report, i) => {
+
+        const info = items[i] && items[i].querySelector(".report-info");
+
+        if (info) {
+            info.insertAdjacentHTML("beforeend", " " + ledgerBadgeHtml(report));
+        }
+
+    });
+};
+
+
+// My Reports table me badge
+const _loadMyReportsBadge = loadMyReports;
+
+loadMyReports = function () {
+
+    _loadMyReportsBadge();
+
+    const rows = document.querySelectorAll("#myReportsTable tr");
+
+    reports.forEach((report, i) => {
+
+        const cell = rows[i] && rows[i].children[4];
+
+        if (cell) {
+            cell.insertAdjacentHTML("beforeend", " " + ledgerBadgeHtml(report));
+
+        }
+
+    });
+};
+/* =========================================
+   VERIFY / REJECT (with verified_by)
+========================================= */
+
+async function verifyReport(reportId) {
+
+    try {
+
+        const response = await fetch(`http://localhost:5000/api/reports/${reportId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                status: "Verified",
+                verified_by: localStorage.getItem("loginEmail") || "Unknown"
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to verify report");
+        }
+
+        const report = reports.find(r => r.id === reportId);
+        const name = report ? (report.title || report.type) : `#${reportId}`;
+
+        await fetchReports();
+
+        addNotification(
+            "✅",
+            "Report Verified",
+            `Your report "${name}" has been verified by a community member.`
+        );
+
+        alert(`Report ${reportId} has been verified successfully.`);
+
+    } catch (error) {
+        console.error("Error verifying report:", error);
+        alert("Something went wrong. Please try again.");
+    }
+}
+
+
+async function rejectReport(reportId) {
+
+    const confirmReject = confirm(
+        "Are you sure you want to reject this report?"
+    );
+
+    if (!confirmReject) return;
+
+    try {
+
+        const response = await fetch(`http://localhost:5000/api/reports/${reportId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                status: "Rejected",
+                verified_by: localStorage.getItem("loginEmail") || "Unknown"
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to reject report");
+        }
+
+        const report = reports.find(r => r.id === reportId);
+        const name = report ? (report.title || report.type) : `#${reportId}`;
+
+        await fetchReports();
+
+        addNotification(
+            "❌",
+            "Report Rejected",
+            `Your report "${name}" was rejected by a community member.`
+        );
+
+        alert(`Report ${reportId} has been rejected.`);
+
+    } catch (error) {
+        console.error("Error rejecting report:", error);
+        alert("Something went wrong. Please try again.");
+    }
+}
+/* =========================================
+   LEDGER + VERIFICATION BADGES
+========================================= */
+
+function ledgerBadgeHtml(report) {
+
+    let html = "";
+
+    if (report.ledger_status === "tampered") {
+        html += '<span class="ledger-badge tampered">⚠️ Tampered</span>';
+    } else if (report.ledger_status === "sealed") {
+        html += '<span class="ledger-badge sealed">🔗 Sealed</span>';
+    }
+
+    if (report.status === "Verified" && report.verification_type === "peer") {
+        html += ' <span class="ledger-badge peer">👥 Peer-verified</span>';
+    }
+
+    if (report.status === "Verified" && report.verification_type === "self") {
+        html += ' <span class="ledger-badge self">☝️ Self-verified</span>';
+    }
+
+    return html;
+}
+/* =========================================
+   MY REPORTS: sirf apni reports
+========================================= */
+
+function myEmail() {
+    return (localStorage.getItem("loginEmail") || "").trim().toLowerCase();
+}
+
+function isMine(report) {
+    return String(report.reported_by || "").trim().toLowerCase() === myEmail();
+}
+
+
+loadMyReports = function () {
+
+    const table = document.getElementById("myReportsTable");
+
+    table.innerHTML = "";
+
+    const mine = reports.filter(isMine);
+
+    if (mine.length === 0) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; padding:30px; color:#64748b;">
+                    You have not submitted any reports yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    mine.forEach(report => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+
+            <td><strong>${report.id}</strong></td>
+
+            <td>${escapeHtml(report.type)}</td>
+
+            <td>${escapeHtml(report.location_name || "Unknown")}</td>
+
+            <td>${new Date(report.created_at).toLocaleDateString()}</td>
+
+            <td>
+                <span class="status ${getStatusClass(report.status)}">
+                    ${report.status}
+                </span>
+                ${ledgerBadgeHtml(report)}
+            </td>
+
+            <td>
+                <button class="view-btn" onclick="showReportDetails(${report.id})">
+                    View Details
+                </button>
+            </td>
+
+        `;
+
+        table.appendChild(row);
+    });
+};
+
+
+// dashboard ke "My Reports" count me bhi sirf apni reports
+const _updateStatisticsMine = updateStatistics;
+
+updateStatistics = function () {
+
+    _updateStatisticsMine();
+
+    document.getElementById("myReportCount").textContent =
+        reports.filter(isMine).length;
+};
+/* =========================================
+   PERSONS & UPDATES (real data)
+========================================= */
+
+function timeAgo(iso) {
+
+    const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+
+    if (s < 60) return "Just now";
+    if (s < 3600) return Math.floor(s / 60) + " min ago";
+    if (s < 86400) return Math.floor(s / 3600) + " hours ago";
+
+    return Math.floor(s / 86400) + " days ago";
+}
+
+
+function shortName(email) {
+
+    const e = String(email || "Someone");
+
+    return e.includes("@") ? e.split("@")[0] : e;
+}
+
+
+async function loadPersonsAndUpdates() {
+
+    const section = document.getElementById("updates");
+    const grid = section.querySelector(".updates-grid");
+
+    if (!grid) return;
+
+    const reporters = reports.map(r => r.reported_by).filter(Boolean);
+    const verifiers = reports.map(r => r.verified_by).filter(Boolean);
+
+    const everyone = new Set([...reporters, ...verifiers]);
+    const onlyVerifiers = new Set(verifiers);
+
+    grid.innerHTML = `
+
+        <div class="person-card">
+            <div class="large-avatar">👥</div>
+            <h3>Community Members</h3>
+            <p>${everyone.size} people have reported or verified incidents.</p>
+            <span class="person-status">● Active</span>
+        </div>
+
+        <div class="person-card">
+            <div class="large-avatar">✅</div>
+            <h3>Verifiers</h3>
+            <p>${onlyVerifiers.size} people have verified or rejected reports.</p>
+            <span class="person-status">● Active</span>
+        </div>
+    `;
+
+    let feedHtml = "";
+
+    try {
+
+        const res = await fetch("http://localhost:5000/api/reports/ledger");
+        const ledger = await res.json();
+
+        const recent = [...ledger]
+            .filter(b => b.action !== "IMPORTED")
+            .reverse()
+            .slice(0, 8);
+
+        feedHtml = recent.map(b => {
+
+            const report = reports.find(r => r.id === b.report_id);
+            const title = escapeHtml(report ? (report.title || report.type) : "a report");
+
+            let icon = "🚨";
+            let text = `${escapeHtml(shortName(report && report.reported_by))} reported "${title}"`;
+
+            if (b.action === "VERIFIED") {
+
+                icon = "✅";
+
+                const how = b.verification_type
+                    ? ` (${b.verification_type})`
+                    : "";
+
+                text = `${escapeHtml(shortName(b.verified_by))} verified "${title}"${how}`;
+            }
+
+            if (b.action === "REJECTED") {
+
+                icon = "❌";
+
+                text = `${escapeHtml(shortName(b.verified_by))} rejected "${title}"`;
+            }
+
+            return `
+                <div class="feed-item">
+                    <span>${icon}</span>
+                    <div>
+                        <strong>${text}</strong>
+                        <p><small>${timeAgo(b.timestamp)}</small></p>
+                    </div>
+                </div>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        console.error("Could not load activity:", error);
+    }
+
+    if (feedHtml === "") {
+        feedHtml = '<p style="color:#64748b; font-size:12px;">No activity yet.</p>';
+    }
+
+    let feed = document.getElementById("activityFeed");
+
+    if (!feed) {
+
+        feed = document.createElement("div");
+        feed.className = "panel";
+        feed.id = "activityFeed";
+
+        section.appendChild(feed);
+    }
+
+    feed.innerHTML = `
+        <div class="panel-header">
+            <div>
+                <h3>Recent Activity</h3>
+                <p>Latest reports and verifications</p>
+            </div>
+        </div>
+        ${feedHtml}
+    `;
+}
+
+
+const _updateStatisticsPersons = updateStatistics;
+
+updateStatistics = function () {
+
+    _updateStatisticsPersons();
+    loadPersonsAndUpdates();
+};
+/* =========================================
+   RESPONDER NUMBERS (real data)
+========================================= */
+
+function updateResponderNumbers() {
+
+    const me = (localStorage.getItem("loginEmail") || "")
+        .trim().toLowerCase();
+
+    const verifiers = new Set(
+        reports
+            .map(r => r.verified_by)
+            .filter(v => v && v !== "Unknown")
+    );
+
+    const pending = reports.filter(r => r.status === "Pending");
+
+    const waiting = pending.filter(r =>
+        String(r.reported_by || "").trim().toLowerCase() !== me
+    );
+
+    const verified = reports.filter(r => r.status === "Verified");
+
+    const peer = verified.filter(r => r.verification_type === "peer").length;
+    const self = verified.filter(r => r.verification_type === "self").length;
+
+
+    // Dashboard ke upar wala card
+    const active = document.getElementById("respondersActive");
+
+    if (active) {
+
+        active.textContent = verifiers.size;
+
+        const label = active.parentElement.querySelector("span");
+
+        if (label) label.textContent = "Active Verifiers";
+    }
+
+
+    // Responder Status box
+    const boxValues = [verifiers.size, peer, self, pending.length];
+
+    const boxLabels = [
+        "Active Verifiers",
+        "Peer-verified",
+        "Self-verified",
+        "Awaiting Verification"
+    ];
+
+    document
+        .querySelectorAll(".responder-status .response-item")
+        .forEach((item, i) => {
+
+            if (boxValues[i] === undefined) return;
+
+            item.querySelector("strong").textContent = boxValues[i];
+            item.querySelector("span").textContent = boxLabels[i];
+        });
+
+
+    // Community verification ke 3 cards
+    const cardValues = [pending.length, waiting.length, verified.length];
+
+    const cardLabels = [
+        "Pending Reports",
+        "Waiting for a Peer",
+        "Verified Reports"
+    ];
+
+    document
+        .querySelectorAll("#responders .stat-card")
+        .forEach((card, i) => {
+
+            if (cardValues[i] === undefined) return;
+
+            card.querySelector("h3").textContent = cardValues[i];
+            card.querySelector("span").textContent = cardLabels[i];
+        });
+}
+
+
+const _updateStatisticsResponders = updateStatistics;
+
+updateStatistics = function () {
+
+    _updateStatisticsResponders();
+    updateResponderNumbers();
+};
+/* =========================================
+   NOTIFICATIONS FROM SERVER
+========================================= */
+
+function notifTimeAgo(iso) {
+
+    const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+
+    if (s < 60) return "Just now";
+    if (s < 3600) return Math.floor(s / 60) + " min ago";
+    if (s < 86400) return Math.floor(s / 3600) + " hours ago";
+
+    return Math.floor(s / 86400) + " days ago";
+}
+
+
+function notifUser() {
+    return (localStorage.getItem("loginEmail") || "").trim().toLowerCase();
+}
+
+
+async function loadServerNotifications() {
+
+    const me = notifUser();
+
+    if (!me) return;
+
+    try {
+
+        const res = await fetch(
+            "http://localhost:5000/api/notifications?user=" + encodeURIComponent(me)
+        );
+
+        const list = await res.json();
+
+        notifications.length = 0;
+
+        list.forEach(n => {
+            notifications.push({
+                icon: n.icon,
+                title: n.title,
+                message: n.message,
+                time: notifTimeAgo(n.created_at),
+                unread: n.unread
+            });
+        });
+
+        loadNotifications();
+        updateNotificationCount();
+
+        // Notifications section khula hai toh seedha "seen" maan lo
+        const section = document.getElementById("notifications");
+
+        if (section && !section.classList.contains("hidden")) {
+            markNotificationsSeen();
+        }
+
+    } catch (error) {
+        console.error("Could not load notifications:", error);
+    }
+}
+
+
+// page khulte hi server se notifications lo
+function loadPendingNotifications() {
+
+    localStorage.removeItem("pendingNotifications");
+    localStorage.removeItem("savedNotifications");
+
+    loadServerNotifications();
+}
+
+
+// notifications dekh li: count 0 aur server ko batao
+function markNotificationsSeen() {
+
+    const hadUnread = notifications.some(n => n.unread);
+
+    notifications.forEach(n => n.unread = false);
+
+    updateNotificationCount();
+
+    if (!hadUnread) return;
+
+    fetch("http://localhost:5000/api/notifications/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: notifUser() })
+    }).catch(() => {});
+}
+
+
+// verify ya reject ke baad list dobara server se lo
+function addNotification() {
+    loadServerNotifications();
+}
+
+
+// har 10 second me nayi notification check karo
+setInterval(loadServerNotifications, 10000);

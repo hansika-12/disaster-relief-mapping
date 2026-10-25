@@ -17,7 +17,7 @@ const reports = [
         location: "Sitabuldi, Nagpur",
         description: "Road accident causing heavy traffic congestion.",
         time: "25 minutes ago",
-        severity: "Moderate"
+        severity: severity || 'Moderate',
     },
 
     {
@@ -47,7 +47,7 @@ const reports = [
         location: "Manish Nagar, Nagpur",
         description: "Strong winds have damaged several structures.",
         time: "2 hours ago",
-        severity: "Moderate"
+        severity: severity || 'Moderate',
     },
 
     {

@@ -38,7 +38,7 @@
                 Dashboard
             </button>
 
-            <button class="menu-item" onclick="showSection('report')">
+            <button class="menu-item" onclick="window.location.href='report.html'">
                 <span>🚨</span>
                 Report Incident
             </button>
@@ -50,7 +50,7 @@
 
             <button class="menu-item" onclick="showSection('responders')">
                 <span>🛟</span>
-                Responder Dashboard
+                Community verification
             </button>
 
             <button class="menu-item" onclick="showSection('notifications')">
@@ -150,7 +150,7 @@
 
                     <button
                         class="primary-btn"
-                        onclick="showSection('report')"
+                        onclick="window.location.href='report.html'"
                     >
                         🚨 Report an Incident
                     </button>
@@ -264,8 +264,10 @@
                         </span>
 
                         <span>
-                            <i class="legend-dot safe"></i>
-                            Resolved
+                            
+                           <i class="legend-dot" style="background:#2563eb"></i>
+                            Low
+
                         </span>
 
                     </div>
@@ -299,7 +301,26 @@
 
             </div>
 
+<div class="panel" style="margin-bottom:22px;">
 
+    <div class="panel-header">
+
+        <div>
+            <h3>🔗 Report Ledger</h3>
+            <p>Tamper-proof record of every report</p>
+        </div>
+
+        <button class="small-btn" onclick="checkIntegrity()">
+            Check Integrity
+        </button>
+
+    </div>
+
+    <p id="ledgerResult" style="font-size:13px; color:#64748b;">
+        Click "Check Integrity" to verify all reports.
+    </p>
+
+</div>
             <!-- RESPONDER STATUS -->
 
             <div class="panel responder-status">
@@ -347,199 +368,6 @@
 
 
         <!-- ================================================= -->
-        <!-- REPORT INCIDENT -->
-        <!-- ================================================= -->
-
-        <section id="report" class="dashboard-section hidden">
-
-            <div class="section-heading">
-
-                <div>
-                    <h2>Report New Incident</h2>
-
-                    <p>
-                        Submit accurate information about a disaster
-                        in your area.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="form-panel">
-
-                <form id="incidentForm">
-
-                    <div class="form-row">
-
-                        <div class="form-group">
-
-                            <label>Incident Type</label>
-
-                            <select id="incidentType" required>
-
-                                <option value="">
-                                    Select incident type
-                                </option>
-
-                                <option value="Flood">Flood</option>
-                                <option value="Earthquake">Earthquake</option>
-                                <option value="Fire">Fire</option>
-                                <option value="Landslide">Landslide</option>
-                                <option value="Cyclone">Cyclone</option>
-                                <option value="Building Collapse">
-                                    Building Collapse
-                                </option>
-                                <option value="Other">Other</option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label>Severity</label>
-
-                            <select id="severity" required>
-
-                                <option value="">
-                                    Select severity
-                                </option>
-
-                                <option value="Critical">Critical</option>
-                                <option value="Moderate">Moderate</option>
-                                <option value="Low">Low</option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>Incident Title</label>
-
-                        <input
-                            type="text"
-                            id="incidentTitle"
-                            placeholder="Example: Flood near main road"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>Description</label>
-
-                        <textarea
-                            id="incidentDescription"
-                            rows="5"
-                            placeholder="Describe what happened..."
-                            required
-                        ></textarea>
-
-                    </div>
-
-
-                    <div class="form-row">
-
-                        <div class="form-group">
-
-                            <label>Location</label>
-
-                            <input
-                                type="text"
-                                id="incidentLocation"
-                                placeholder="Enter location"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label>People Affected</label>
-
-                            <input
-                                type="number"
-                                id="peopleAffected"
-                                min="0"
-                                placeholder="Number of people"
-                                required
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>Additional Information</label>
-
-                        <textarea
-                            id="additionalInfo"
-                            rows="3"
-                            placeholder="Resources needed, injuries, blocked roads etc."
-                        ></textarea>
-
-                    </div>
-
-
-                    <div class="upload-box">
-
-                        <span>📷</span>
-
-                        <div>
-                            <strong>Upload Evidence</strong>
-                            <p>
-                                Add photos or videos to help verify
-                                this incident.
-                            </p>
-                        </div>
-
-                        <input
-                            type="file"
-                            id="evidence"
-                            accept="image/*,video/*"
-                        >
-
-                    </div>
-
-
-                    <div class="form-actions">
-
-                        <button
-                            type="button"
-                            class="secondary-btn"
-                            onclick="showSection('dashboard')"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            class="primary-btn"
-                        >
-                            Submit New Report
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================================================= -->
         <!-- MY REPORTS -->
         <!-- ================================================= -->
 
@@ -557,7 +385,7 @@
 
                 <button
                     class="primary-btn"
-                    onclick="showSection('report')"
+                    onclick="window.location.href='report.html'"
                 >
                     + New Report
                 </button>
@@ -592,7 +420,7 @@
 
 
         <!-- ================================================= -->
-        <!-- RESPONDER DASHBOARD -->
+        <!-- Community verification -->
         <!-- ================================================= -->
 
         <section id="responders" class="dashboard-section hidden">
@@ -600,16 +428,16 @@
             <div class="section-heading">
 
                 <div>
-                    <h2>Responder Dashboard</h2>
+                    <h2>Community verification</h2>
 
                     <p>
-                        Verify incidents and manage emergency response.
+                        Verify reports submitted by other community members.
                     </p>
 
                 </div>
 
                 <span class="responder-badge">
-                    🟢 Responder Mode
+                    🟢 Community mode
                 </span>
 
             </div>
@@ -632,225 +460,136 @@
 
                     <div>
                         <span>Need Verification</span>
-                        <h3>5</h3>
+                            <h3>5</h3>
+                        </div>
                     </div>
-                </div>
 
 
-                <div class="stat-card">
-                    <div class="stat-icon green">✅</div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">✅</div>
 
-                    <div>
-                        <span>Verified Today</span>
-                        <h3>14</h3>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <div class="panel">
-
-                <div class="panel-header">
-
-                    <div>
-                        <h3>Reports Awaiting Action</h3>
-                        <p>Verify or reject community reports</p>
+                        <div>
+                            <span>Verified Today</span>
+                            <h3>14</h3>
+                        </div>
                     </div>
 
                 </div>
 
 
-                <div id="responderReports"></div>
+                <div class="panel">
 
-            </div>
+                    <div class="panel-header">
 
-        </section>
+                        <div>
+                            <h3>Reports Awaiting Action</h3>
+                            <p>Verify or reject community reports</p>
+                        </div>
 
-
-        <!-- ================================================= -->
-        <!-- NOTIFICATIONS -->
-        <!-- ================================================= -->
-
-        <section id="notifications" class="dashboard-section hidden">
-
-            <div class="section-heading">
-
-                <div>
-                    <h2>Notifications</h2>
-
-                    <p>
-                        Important alerts and report updates.
-                    </p>
-                </div>
-
-                <button
-                    class="text-btn"
-                    onclick="markAllRead()"
-                >
-                    Mark all as read
-                </button>
-
-            </div>
+                    </div>
 
 
-            <div class="notification-panel" id="notificationList"></div>
-
-        </section>
-
-
-        <!-- ================================================= -->
-        <!-- PERSONS & UPDATES -->
-        <!-- ================================================= -->
-
-        <section id="updates" class="dashboard-section hidden">
-
-            <div class="section-heading">
-
-                <div>
-                    <h2>Persons & Updates</h2>
-
-                    <p>
-                        Community members and emergency updates.
-                    </p>
+                    <div id="responderReports"></div>
 
                 </div>
 
-            </div>
+            </section>
 
 
-            <div class="updates-grid">
+            <!-- ================================================= -->
+            <!-- NOTIFICATIONS -->
+            <!-- ================================================= -->
 
-                <div class="person-card">
+            <section id="notifications" class="dashboard-section hidden">
 
-                    <div class="large-avatar">👨‍🚒</div>
+                <div class="section-heading">
 
-                    <h3>Emergency Responders</h3>
-
-                    <p>
-                        17 responders are currently active.
-                    </p>
-
-                    <span class="person-status">
-                        ● Active
-                    </span>
-
-                </div>
-
-
-                <div class="person-card">
-
-                    <div class="large-avatar">👥</div>
-
-                    <h3>Community Volunteers</h3>
-
-                    <p>
-                        Local citizens helping with relief activities.
-                    </p>
-
-                    <span class="person-status">
-                        ● Active
-                    </span>
-
-                </div>
-
-
-                <div class="person-card">
-
-                    <div class="large-avatar">🏥</div>
-
-                    <h3>Relief Centers</h3>
-
-                    <p>
-                        Nearby shelters and medical centers.
-                    </p>
-
-                    <span class="person-status">
-                        ● Available
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="panel updates-feed">
-
-                <div class="panel-header">
-                    <h3>Latest Community Updates</h3>
-                </div>
-
-                <div class="feed-item">
-                    <span>📢</span>
                     <div>
-                        <strong>Relief Center Opened</strong>
+                        <h2>Notifications</h2>
+
                         <p>
-                            Emergency shelter opened near Central School.
+                            Important alerts and report updates.
                         </p>
-                        <small>15 minutes ago</small>
                     </div>
+
+                    <button
+                        class="text-btn"
+                        onclick="markAllRead()"
+                    >
+                        Mark all as read
+                    </button>
+
                 </div>
 
-                <div class="feed-item">
-                    <span>🛟</span>
+
+                <div class="notification-panel" id="notificationList"></div>
+
+            </section>
+
+
+            <!-- ================================================= -->
+            <!-- PERSONS & UPDATES -->
+            <!-- ================================================= -->
+
+            <section id="updates" class="dashboard-section hidden">
+
+                <div class="section-heading">
+
                     <div>
-                        <strong>Rescue Team Assigned</strong>
+                        <h2>Persons & Updates</h2>
+
                         <p>
-                            Rescue team has been assigned to Flood #DR104.
+                            Community members and emergency updates.
                         </p>
-                        <small>32 minutes ago</small>
+
                     </div>
+
                 </div>
 
-                <div class="feed-item">
-                    <span>💧</span>
-                    <div>
-                        <strong>Water Supply Required</strong>
+
+                <div class="updates-grid">
+
+                    <div class="person-card">
+
+                        <div class="large-avatar">👨‍🚒</div>
+
+                        <h3>Emergency Responders</h3>
+
                         <p>
-                            Volunteers requested drinking water supplies.
+                            17 responders are currently active.
                         </p>
-                        <small>1 hour ago</small>
+
+                        <span class="person-status">
+                            ● Active
+                        </span>
+
                     </div>
+
+
+                    <div class="person-card">
+
+                        <div class="large-avatar">👥</div>
+
+                        <h3>Community Members</h3>
+
+                        <p>
+                            Active community members helping with relief efforts.
+                        </p>
+
+                        <span class="person-status">
+                            ● Active
+                        </span>
+
+                    </div>
+
                 </div>
 
-            </div>
+            </section>
 
-        </section>
+        </main>
 
-    </main>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="dashboard.js"></script>
 
-
-    <!-- ================================================= -->
-    <!-- REPORT DETAILS MODAL -->
-    <!-- ================================================= -->
-
-    <div id="reportModal" class="modal">
-
-        <div class="modal-content">
-
-            <button
-                class="close-modal"
-                onclick="closeModal()"
-            >
-                ×
-            </button>
-
-            <h2>Report Details</h2>
-
-            <div id="modalDetails"></div>
-
-        </div>
-
-    </div>
-
-
-    <!-- Leaflet Map JS -->
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-    </script>
-
-    <!-- Dashboard JS -->
-    <script src="dashboard.js"></script>
-
-</body>
-</html>
+    </body>
+    </html>

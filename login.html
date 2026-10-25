@@ -25,20 +25,17 @@
                 Login to access disaster relief mapping
             </p>
 
-            <!-- Mobile Number -->
+            <!-- Email -->
             <div id="mobile-section">
 
-                <label>Mobile Number</label>
+                <label>Email Address</label>
 
-                <div class="mobile-input">
-                    <span>+91</span>
-                    <input
-                        type="tel"
-                        id="mobile"
-                        placeholder="Enter mobile number"
-                        maxlength="10"
-                    >
-                </div>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                >
 
                 <button id="otp-btn" onclick="generateOTP()">
                     Generate OTP

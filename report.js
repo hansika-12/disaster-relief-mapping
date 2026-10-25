@@ -1,20 +1,39 @@
-﻿const form = document.getElementById("incidentForm");
+﻿// ---------- LOCATION CAPTURE ----------
+
+let userLat = null;
+let userLng = null;
+
+const useLocationBtn = document.getElementById("useLocationBtn");
+const locationStatus = document.getElementById("locationStatus");
+
+useLocationBtn.addEventListener("click", function () {
+
+    if (!navigator.geolocation) {
+        locationStatus.textContent = "Geolocation not supported by your browser.";
+        return;
+    }
+
+    locationStatus.textContent = "Fetching your location...";
+
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+            userLat = position.coords.latitude;
+            userLng = position.coords.longitude;
+            locationStatus.textContent =
+                `Location captured: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+        },
+        function (error) {
+            locationStatus.textContent =
+                "Could not fetch location. Please allow permission or type manually.";
+        }
+    );
+});
+
+
+// ---------- PHOTO PREVIEW ----------
 
 const photoInput = document.getElementById("incidentPhoto");
-const videoInput = document.getElementById("incidentVideo");
-
 const photoPreview = document.getElementById("photoPreview");
-const videoPreview = document.getElementById("videoPreview");
-
-const description = document.getElementById("description");
-const charCount = document.getElementById("charCount");
-
-const errorMessage = document.getElementById("errorMessage");
-
-
-// ------------------------------------
-// PHOTO PREVIEW
-// ------------------------------------
 
 photoInput.addEventListener("change", function () {
 
@@ -27,194 +46,100 @@ photoInput.addEventListener("change", function () {
     }
 
     if (!file.type.startsWith("image/")) {
-
         alert("Please select a valid image.");
         this.value = "";
         return;
     }
 
     const image = document.createElement("img");
-
     image.src = URL.createObjectURL(file);
-
     image.alt = "Incident Photo Preview";
+    image.style.maxWidth = "200px";
+    image.style.marginTop = "10px";
+    image.style.borderRadius = "8px";
 
     photoPreview.appendChild(image);
 });
 
 
-// ------------------------------------
-// VIDEO PREVIEW
-// ------------------------------------
+// ---------- FORM SUBMIT ----------
 
-videoInput.addEventListener("change", function () {
+document
+    .getElementById("incidentForm")
+    .addEventListener("submit", async function (event) {
 
-    videoPreview.innerHTML = "";
+        event.preventDefault();
 
-    const file = this.files[0];
+        const type =
+            document.getElementById("incidentType").value;
 
-    if (!file) {
-        return;
-    }
+        const severity =
+            document.getElementById("severity").value;
 
-    if (!file.type.startsWith("video/")) {
+        const title =
+            document.getElementById("incidentTitle").value;
 
-        alert("Please select a valid video.");
-        this.value = "";
-        return;
-    }
+        const description =
+            document.getElementById("incidentDescription").value;
 
-    const video = document.createElement("video");
+        const location_name =
+            document.getElementById("incidentLocation").value;
 
-    video.src = URL.createObjectURL(file);
+        const people_affected =
+            document.getElementById("peopleAffected").value;
 
-    video.controls = true;
+        const newReport = {
+            type: type,
+            title: title,
+            description: description,
+            location_name: location_name,
+            latitude: userLat !== null ? userLat : 21.1458,
+            longitude: userLng !== null ? userLng : 79.0882,
+            people_affected: people_affected,
+            severity: severity,
+            reported_by: localStorage.getItem("loginEmail") || "Anonymous"
+        };
 
-    videoPreview.appendChild(video);
-});
+        try {
 
+            const response = await fetch("http://localhost:5000/api/reports", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newReport)
+            });
 
-// ------------------------------------
-// DESCRIPTION CHARACTER COUNT
-// ------------------------------------
+            if (!response.ok) {
+                throw new Error("Failed to submit report");
+            }
 
-description.addEventListener("input", function () {
-
-    charCount.textContent = this.value.length;
-
-    if (this.value.length > 500) {
-        this.value = this.value.substring(0, 500);
-        charCount.textContent = 500;
-    }
-});
-
-
-// ------------------------------------
-// GET CURRENT LOCATION
-// ------------------------------------
-
-function getLocation() {
-
-    const locationStatus =
-        document.getElementById("locationStatus");
-
-    if (!navigator.geolocation) {
-
-        locationStatus.textContent =
-            "❌ Geolocation is not supported by your browser.";
-
-        return;
-    }
-
-    locationStatus.textContent =
-        "📍 Getting your location...";
-
-    navigator.geolocation.getCurrentPosition(
-
-        function (position) {
-
-            const latitude =
-                position.coords.latitude;
-
-            const longitude =
-                position.coords.longitude;
-
-            locationStatus.textContent =
-                "📍 Location captured: " +
-                latitude.toFixed(6) +
-                ", " +
-                longitude.toFixed(6);
-
-            // Store location temporarily
-            localStorage.setItem(
-                "incidentLatitude",
-                latitude
+            const pendingNotifications = JSON.parse(
+                localStorage.getItem("pendingNotifications") || "[]"
             );
 
+            pendingNotifications.push({
+                icon: "🚨",
+                title: "New Report Submitted",
+                message: `Your report "${title}" has been submitted and is pending verification.`,
+                time: "Just now",
+                unread: true
+            });
+
             localStorage.setItem(
-                "incidentLongitude",
-                longitude
+                "pendingNotifications",
+                JSON.stringify(pendingNotifications)
             );
-        },
 
-        function () {
+            console.log("Saved to localStorage:", pendingNotifications);
 
-            locationStatus.textContent =
-                "❌ Unable to get location. Please allow location permission.";
+            alert("Your incident report has been submitted successfully!");
+
+            window.location.href = "dashboard.html";
+
+        } catch (error) {
+            console.error("Error submitting report:", error);
+            alert("Something went wrong. Please check your connection and try again.");
         }
-    );
-}
 
-
-// ------------------------------------
-// FORM SUBMISSION
-// ------------------------------------
-
-form.addEventListener("submit", function (event) {
-
-    event.preventDefault();
-
-    errorMessage.textContent = "";
-
-
-    // Check Photo
-
-    if (photoInput.files.length === 0) {
-
-        errorMessage.textContent =
-            "❌ Please upload an incident photo.";
-
-        return;
-    }
-
-
-    // Check Video
-
-    if (videoInput.files.length === 0) {
-
-        errorMessage.textContent =
-            "❌ Please upload an incident video.";
-
-        return;
-    }
-
-
-    // Check Description
-
-    if (description.value.trim() === "") {
-
-        errorMessage.textContent =
-            "❌ Please describe what happened.";
-
-        return;
-    }
-
-
-    // Everything is valid
-
-    alert(
-        "✅ Incident report submitted successfully!"
-    );
-
-    // Clear form
-
-    form.reset();
-
-    photoPreview.innerHTML = "";
-    videoPreview.innerHTML = "";
-
-    charCount.textContent = "0";
-
-    document.getElementById("locationStatus").textContent =
-        "Location not selected.";
-});
-
-
-// ------------------------------------
-// BACK TO DASHBOARD
-// ------------------------------------
-
-function goBack() {
-
-    window.location.href = "dashboard.html";
-}
+    });

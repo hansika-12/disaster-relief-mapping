@@ -1398,3 +1398,50 @@ td {
     }
 
 }
+/* header ka "Citizen User" link theek karna */
+.profile,
+.profile:hover,
+.profile:visited {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* sidebar poori height tak */
+.sidebar {
+    min-height: 100vh;
+}
+.ledger-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+.ledger-badge.sealed {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.ledger-badge.tampered {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.ledger-badge.peer {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.ledger-badge.self {
+    background: #fef3c7;
+    color: #92400e;
+}
+/* section ke andar wali duplicate heading chhupao */
+.section-heading > div:first-child {
+    display: none;
+}
+
+.section-heading {
+    justify-content: flex-end;
+}
